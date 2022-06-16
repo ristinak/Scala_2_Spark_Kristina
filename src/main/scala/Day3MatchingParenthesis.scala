@@ -19,8 +19,11 @@ object Day3MatchingParenthesis extends App {
       {
         parenthesisStack.push(char)
       }
-      else {
+      else try {
         parenthesisStack.pop()
+      }
+      catch {
+        case e: NoSuchElementException => return false
       }
     }
 
@@ -36,8 +39,8 @@ object Day3MatchingParenthesis extends App {
     if (openingCount != closingCount) false else true
   }
 
-  println(areParenthesisMatching("))((()"))
-  println(AlternativeParenthesisMatching("))((()"))
+  println(areParenthesisMatching("()((()))))"))
+  println(AlternativeParenthesisMatching("()((()))))"))
 
 }
 
