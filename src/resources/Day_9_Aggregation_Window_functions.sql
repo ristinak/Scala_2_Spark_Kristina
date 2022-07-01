@@ -149,7 +149,8 @@ ON i.CustomerId = c.CustomerId
 JOIN invoice_items ii 
 ON i.InvoiceId = ii.InvoiceId 
 GROUP BY i.CustomerId 
-ORDER BY total_spent_amount DESC;
+ORDER BY total_spent_amount DESC
+LIMIT 3;
 
 --TODO 4 find ALL listeners to classical music
 -- include their names and emails and phone numbers
