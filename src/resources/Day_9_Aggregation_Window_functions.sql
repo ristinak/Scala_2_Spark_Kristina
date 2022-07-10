@@ -143,6 +143,8 @@ LIMIT 5;
 --this might involve joining customers and invoices and invoice items
 --then using GROUP BY and then SUM on grouped TOTAL
 
+
+--INCORRECT!
 SELECT c.CustomerId, FirstName, LastName, SUM(i.Total) total_spent_amount FROM customers c 
 JOIN invoices i
 ON i.CustomerId = c.CustomerId
@@ -152,9 +154,91 @@ GROUP BY i.CustomerId
 ORDER BY total_spent_amount DESC
 LIMIT 3;
 
+--From Valdis' class:
+SELECT i.CustomerId,
+		c.FirstName,
+		c.LastName,
+		c.Country,
+		c.City,
+		i.Total
+--		SUM(total) totalByCustomer -- aggregate returns a single value
+FROM invoices i
+JOIN customers c
+	ON i.CustomerId = c.CustomerId ;
+
+
+SELECT i.CustomerId,
+		c.FirstName,
+		c.LastName,
+		c.Country,
+		c.City,
+		SUM(total) totalByCustomer
+FROM invoices i
+JOIN customers c
+	ON i.CustomerId = c.CustomerId
+GROUP BY i.CustomerId
+ORDER BY totalByCustomer DESC
+LIMIT 3;
+
+--following query will give sum total multiple times
+--so not correct!
+--it happens because a single row represents a single item purchase
+SELECT c.CustomerId, FirstName, LastName, SUM(i.Total) total_spent_amount FROM customers c
+JOIN invoices i
+ON i.CustomerId = c.CustomerId
+JOIN invoice_items ii
+ON i.InvoiceId = ii.InvoiceId
+GROUP BY i.CustomerId
+ORDER BY total_spent_amount DESC
+LIMIT 3;
+
+SELECT c.CustomerId,
+FirstName,
+LastName,
+i.Total,
+i.InvoiceId ,
+ii.UnitPrice,
+ii.Quantity
+FROM customers c
+JOIN invoices i
+ON i.CustomerId = c.CustomerId
+JOIN invoice_items ii
+ON i.InvoiceId = ii.InvoiceId;
+
+SELECT * FROM customers c
+WHERE city = 'Prague';
+
+--here the problem is that unit price is not the full picture
+SELECT c.CustomerID,
+c.Firstname,
+c.Lastname,
+SUM(ii.UnitPrice) as sumUnits
+FROM invoices i
+JOIN invoice_items ii ON ii.InvoiceId = i.InvoiceId
+JOIN customers c ON c.CustomerId = i.InvoiceId
+GROUP BY c.CustomerId
+ORDER by sumUnits DESC
+LIMIT 3;
+
+SELECT * FROM invoice_items ii
+ORDER BY UnitPrice DESC;
+
+SELECT * FROM invoice_items ii
+JOIN invoices i
+ON i.InvoiceId = ii.InvoiceId ;
+
+SELECT i.CustomerId, SUM(UnitPrice) sumPrices FROM invoice_items ii
+JOIN invoices i
+ON i.InvoiceId = ii.InvoiceId
+JOIN customers c ON c.CustomerId = i.CustomerId
+GROUP BY i.CustomerId
+ORDER BY sumPrices DESC;
+
+
 --TODO 4 find ALL listeners to classical music
 -- include their names and emails and phone numbers
 --this might not need aggregation
+
 
 SELECT c.CustomerId, FirstName, LastName, Email, Phone, COUNT(t.TrackId) classical_tracks_bought FROM customers c 
 JOIN invoices i
@@ -168,3 +252,111 @@ ON g.GenreId = t.GenreId
 WHERE g.Name = 'Classical'
 GROUP BY i.CustomerId 
 ORDER BY classical_tracks_bought DESC;
+
+--Finding the missing listener, ID 33:
+CREATE VIEW five_tables
+AS 
+SELECT c.CustomerId, FirstName, LastName, Email, Phone FROM customers c 
+JOIN invoices i
+ON i.CustomerId = c.CustomerId
+JOIN invoice_items ii 
+ON i.InvoiceId = ii.InvoiceId 
+JOIN tracks t 
+ON t.TrackId = ii.TrackId 
+JOIN genres g 
+ON g.GenreId = t.GenreId 
+WHERE g.Name = 'Classical';
+
+--From Valdis' class:
+SELECT  c.FirstName,
+		c.LastName,
+		c.Email,
+		c.Phone
+FROM invoice_items ii
+JOIN invoices i
+	ON ii.InvoiceId = i.InvoiceId
+JOIN customers c
+	ON i.CustomerId = c.CustomerId
+JOIN tracks t
+	ON ii.TrackId = t.TrackId
+JOIN genres g
+	ON t.GenreId = g.GenreId
+WHERE g.Name = 'Classical';
+
+--so we
+SELECT DISTINCT (FirstName || LastName), FirstName, LastName
+FROM customers c
+JOIN invoices i
+ON c.CustomerId = i.CustomerId
+JOIN invoice_items ii
+ON ii.InvoiceId = i.InvoiceId
+JOIN tracks t
+ON t.TrackId = ii.TrackId
+JOIN genres g
+ON g.GenreId = t.GenreId
+WHERE g.Name = 'Classical'
+ORDER BY FirstName ;
+
+SELECT c.CustomerId, FirstName, LastName, Email, Phone,
+COUNT(t.TrackId) classical_tracks_bought,
+SUM(t.Milliseconds) / 60000 minutes_bought
+FROM customers c
+JOIN invoices i
+ON i.CustomerId = c.CustomerId
+JOIN invoice_items ii
+ON i.InvoiceId = ii.InvoiceId
+JOIN tracks t
+ON t.TrackId = ii.TrackId
+JOIN genres g
+ON g.GenreId = t.GenreId
+WHERE g.Name = 'Classical'
+GROUP BY i.CustomerId
+ORDER BY classical_tracks_bought DESC;
+
+SELECT ii.TrackId, i.CustomerId, c.FirstName, c.LastName, c.Email, c.Phone, g.Name AS genreName
+FROM invoice_items ii
+JOIN invoices i
+	ON ii.InvoiceId = i.InvoiceId
+JOIN customers c
+	ON i.CustomerId = c.CustomerId
+JOIN tracks t
+	ON ii.TrackId = t.TrackId
+JOIN genres g
+	ON t.GenreId = g.GenreId
+WHERE g.Name = 'Classical'
+GROUP BY i.CustomerId
+ORDER BY i.CustomerId ;
+
+SELECT * FROM customers c2
+WHERE c2.CustomerId BETWEEN 30 AND 40;
+
+SELECT ii.TrackId, t.name, i.CustomerId, c.FirstName, c.LastName, c.Email, c.Phone, g.Name AS genreName
+FROM invoice_items ii
+JOIN invoices i
+	ON ii.InvoiceId = i.InvoiceId
+JOIN customers c
+	ON i.CustomerId = c.CustomerId
+JOIN tracks t
+	ON ii.TrackId = t.TrackId
+JOIN genres g
+	ON t.GenreId = g.GenreId
+WHERE c.CustomerId = 33;
+
+CREATE VIEW IF NOT EXISTS v_track_purchases
+AS
+SELECT ii.TrackId, t.name, i.CustomerId, c.FirstName, c.LastName, c.Email, c.Phone, g.Name AS genreName
+FROM invoice_items ii
+JOIN invoices i
+	ON ii.InvoiceId = i.InvoiceId
+JOIN customers c
+	ON i.CustomerId = c.CustomerId
+JOIN tracks t
+	ON ii.TrackId = t.TrackId
+JOIN genres g
+	ON t.GenreId = g.GenreId;
+
+SELECT * FROM v_track_purchases vtp;
+
+SELECT DISTINCT(CustomerId), FirstName , LastName FROM v_track_purchases vtp
+WHERE genreName = 'Classical'
+GROUP BY CustomerId ;
