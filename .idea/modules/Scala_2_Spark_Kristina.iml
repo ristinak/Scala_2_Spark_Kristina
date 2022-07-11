@@ -12,9 +12,18 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="sbt: io.projectreactor:reactor-core:3.2.22.RELEASE:jar" level="project" />
     <orderEntry type="library" name="sbt: net.debasishg:redisclient_2.13:3.42:jar" level="project" />
     <orderEntry type="library" name="sbt: org.apache.commons:commons-pool2:2.8.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb.scala:mongo-scala-bson_2.13:4.6.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb.scala:mongo-scala-driver_2.13:4.6.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb:bson-record-codec:4.6.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb:bson:4.6.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb:mongodb-driver-core:4.6.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb:mongodb-driver-reactivestreams:4.6.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.reactivestreams:reactive-streams:1.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.8:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.13.8:jar" level="project" />
     <orderEntry type="library" name="sbt: org.slf4j:slf4j-api:1.7.32:jar" level="project" />
   </component>
 </module>
