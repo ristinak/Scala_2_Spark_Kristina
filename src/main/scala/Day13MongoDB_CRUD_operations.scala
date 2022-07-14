@@ -38,11 +38,12 @@ object Day13MongoDB_CRUD_operations extends App {
   //    val allRestaurants = collection.find(gte("address.building", "3000")) //greather lexicographically
   ////    val allRestaurants = collection.find(Filters.regex("name", ".*Kosher.*"))
   //TODO find ALL restaurants in Manhattan offering barbeque OR BBQ  in name (maybe try cuisine as well)
-  val manhattanBBQRestaurants = collection.find(and(equal("borough","Manhattan)"),
-    or(Filters.regex("name", ".*barbeque.*")),
-    or(Filters.regex("cuisine", ".*barbeque.*")),
-    or(Filters.regex("name", ".*BBQ.*")),
-    or(Filters.regex("cuisine", ".*BBQ.*"))))
+  val manhattanBBQRestaurants = collection.find(
+    and(equal("borough","Manhattan"),
+    or(Filters.regex("name", ".*(?i)barbe[q|c]ue.*"),
+    Filters.regex("cuisine", ".*(?i)barbe[q|c]ue.*"),
+    Filters.regex("name", ".*(?i)bbq.*"),
+    Filters.regex("cuisine", ".*(?i)bbq.*"))))
     .subscribe(
       (doc: Document) => {
         resultsBuffer += doc //so each document(row of JSON) will be added to our buffer
