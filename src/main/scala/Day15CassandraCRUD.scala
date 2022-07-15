@@ -2,6 +2,10 @@ package com.github.ristinak
 
 import CassandraExample.{getClusterSession, rawQuery, runQuery}
 
+import com.datastax.driver.core.ResultSet
+
+import scala.collection.convert.ImplicitConversions.`iterable AsScalaIterable`
+
 object Day15CassandraCRUD extends App {
 
   //TODO store host and port also in System Enviroment so no need for outside parties to know your host address
@@ -51,6 +55,24 @@ object Day15CassandraCRUD extends App {
   //  session.execute("INSERT INTO vs_keyspace.users_by_country (country,user_email,first_name,last_name,age)" +
   //    " VALUES (?, ?,?,?,?)", "LV", "kk@example.com", "Krišjānis","Kariņš",60.toShort)
 
+  case class User(
+                 country: String,
+                 user_email: String,
+                 first_name: String,
+                 last_name: String,
+                 age: Int
+                 )
+
+  def userResultToUser(resultRow: com.datastax.driver.core.Row): User = {
+    val resultArray = resultRow.toString.split(", ")
+    val country: String = resultArray(0).substring(4)
+    val user_email: String = resultArray(1)
+    val first_name: String = resultArray(3)
+    val last_name: String = resultArray(4).dropRight(1)
+    val age: Int = resultArray(2).toInt
+    User(country, user_email, first_name, last_name, age)
+  }
+
   //if column is regular int then we give it regular int of course
   session.execute("INSERT INTO vs_keyspace.users_by_country (country,user_email,first_name,last_name,age)" +
     " VALUES (?,?,?,?,?)", "US", "john@example.com", "John","Wick",55)
@@ -77,12 +99,16 @@ object Day15CassandraCRUD extends App {
   //ideally you would not only print but save the users into a case class User - we can look at that later
 
   println("\nLatvian user(s):")
-  val latvianUsers = session.execute("SELECT * FROM vs_keyspace.users_by_country WHERE country = 'LV'")
-  latvianUsers.forEach(row => println(row))
+  val latvianUserResults = session.execute("SELECT * FROM vs_keyspace.users_by_country WHERE country = 'LV'")
+  val latvianUsers = latvianUserResults.map(resultRow => userResultToUser(resultRow)).toArray
+//  latvianUserResults.forEach(row => println(row))
+  latvianUsers.foreach(user => println(user))
 
   println("\nLithuanian user(s):")
-  val lithuanianUsers = session.execute("SELECT * FROM vs_keyspace.users_by_country WHERE country = 'LT'")
-  lithuanianUsers.forEach(row => println(row))
+  val lithuanianUserResults = session.execute("SELECT * FROM vs_keyspace.users_by_country WHERE country = 'LT'")
+//  lithuanianUsers.forEach(row => println(row))
+  val lithuanianUsers = lithuanianUserResults.map(resultRow => userResultToUser(resultRow)).toArray
+  lithuanianUsers.foreach(user => println(user))
 
   println("Will close our Cassandra Cluster")
   cluster.close()
