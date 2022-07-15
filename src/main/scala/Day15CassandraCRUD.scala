@@ -64,12 +64,17 @@ object Day15CassandraCRUD extends App {
                  )
 
   def userResultToUser(resultRow: com.datastax.driver.core.Row): User = {
-    val resultArray = resultRow.toString.split(", ")
-    val country: String = resultArray(0).substring(4)
-    val user_email: String = resultArray(1)
-    val first_name: String = resultArray(3)
-    val last_name: String = resultArray(4).dropRight(1)
-    val age: Int = resultArray(2).toInt
+//    val resultArray = resultRow.toString.split(", ")
+//    val country: String = resultArray(0).substring(4)
+//    val user_email: String = resultArray(1)
+//    val first_name: String = resultArray(3)
+//    val last_name: String = resultArray(4).dropRight(1)
+//    val age: Int = resultArray(2).toInt
+  val country = resultRow.getString("country")
+  val user_email = resultRow.getString("user_email")
+  val first_name = resultRow.getString("first_name")
+  val last_name = resultRow.getString("last_name")
+  val age = resultRow.getInt("age")
     User(country, user_email, first_name, last_name, age)
   }
 
